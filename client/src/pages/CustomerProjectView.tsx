@@ -4,7 +4,6 @@ import { projectApi } from '../services/api';
 import type { WorkspaceData } from '../types';
 import { StatusBadge } from '../components/StatusBadge';
 import { DeclarationModal } from '../components/DeclarationModal';
-import { SubmitPaymentModal } from '../components/SubmitPaymentModal';
 import {
   ArrowLeft,
   Clock,
@@ -25,7 +24,6 @@ export const CustomerProjectView: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
 
   const [showDeclarationModal, setShowDeclarationModal] = useState(false);
-  const [showPaymentModal, setShowPaymentModal] = useState(false);
   const [copiedBank, setCopiedBank] = useState(false);
 
   const fetchWorkspace = async () => {
@@ -291,17 +289,11 @@ export const CustomerProjectView: React.FC = () => {
         {/* Right: Banking Details, QR Code & Ledger */}
         <div className="space-y-8">
           <div className="rounded-2xl border border-zinc-200 bg-white p-6 shadow-sm space-y-6">
-            <div className="flex items-center justify-between pb-4 border-b border-zinc-200">
+            <div className="pb-4 border-b border-zinc-200">
               <h2 className="text-sm font-bold text-zinc-900 tracking-tight flex items-center space-x-2">
                 <CreditCard className="w-4 h-4 text-emerald-600" />
                 <span>Payment & Bank Details</span>
               </h2>
-              <button
-                onClick={() => setShowPaymentModal(true)}
-                className="px-2.5 py-1 rounded-lg bg-zinc-900 hover:bg-zinc-800 text-white text-[11px] font-medium transition-colors shadow-sm"
-              >
-                Submit Proof
-              </button>
             </div>
 
             {/* QR Code */}
@@ -440,22 +432,6 @@ export const CustomerProjectView: React.FC = () => {
               project: updated,
             });
             setShowDeclarationModal(false);
-          }}
-        />
-      )}
-
-      {/* Submit Payment Modal */}
-      {showPaymentModal && (
-        <SubmitPaymentModal
-          isOpen={showPaymentModal}
-          onClose={() => setShowPaymentModal(false)}
-          projectId={project.id}
-          currency={project.currency}
-          onSubmitted={(txn) => {
-            setWorkspace({
-              ...workspace,
-              transactions: [txn, ...workspace.transactions],
-            });
           }}
         />
       )}

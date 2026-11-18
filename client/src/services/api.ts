@@ -143,14 +143,6 @@ export const transactionApi = {
     );
     return res.data;
   },
-  submitProof: async (projectId: string, formData: FormData) => {
-    const res = await apiClient.post<{ message: string; transaction: Transaction }>(
-      `/transactions/project/${projectId}/proof`,
-      formData,
-      { headers: { 'Content-Type': 'multipart/form-data' } }
-    );
-    return res.data;
-  },
   updateStatus: async (id: string, status: string, notes?: string) => {
     const res = await apiClient.patch<{ message: string; transaction: Transaction }>(`/transactions/${id}/status`, {
       status,
