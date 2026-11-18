@@ -38,12 +38,13 @@ app.use('/uploads', express.static(uploadsDir));
 
 // System Health & Diagnostics endpoint
 app.get('/api/health', (req, res) => {
+  const isNeon = process.env.DATABASE_URL?.includes('neon.tech');
   res.json({
     status: 'online',
     appName: 'Workroom API',
     database: {
       connected: isDbConnected(),
-      engine: 'PostgreSQL (Render)',
+      engine: isNeon ? 'PostgreSQL (Neon)' : 'PostgreSQL',
       hasDatabaseUrl: Boolean(process.env.DATABASE_URL),
     },
     cloudinary: {

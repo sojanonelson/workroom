@@ -90,8 +90,9 @@ Create or edit `server/.env` (see `server/.env.example`):
 PORT=5001
 NODE_ENV=development
 
-# Render PostgreSQL connection string
-DATABASE_URL=postgres://workroom_user:password@dpg-xxx.oregon-postgres.render.com/workroom_db
+# Neon PostgreSQL connection string (Direct or Pooled)
+# Example: postgresql://workroom_owner:npg_secret@ep-cool-fog-123456.us-east-2.aws.neon.tech/workroom?sslmode=require
+DATABASE_URL=postgresql://workroom_owner:password@ep-xxxx.us-east-2.aws.neon.tech/workroom?sslmode=require
 DB_SSL=true
 
 # Authentication secret
