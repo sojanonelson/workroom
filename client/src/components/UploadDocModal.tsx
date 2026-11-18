@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, Upload, FileText, CheckCircle2 } from 'lucide-react';
 import { documentApi } from '../services/api';
-import { DocumentCategory, ProjectDocument } from '../types';
+import type { DocumentCategory, ProjectDocument } from '../types';
 
 interface UploadDocModalProps {
   isOpen: boolean;
@@ -69,35 +69,35 @@ export const UploadDocModal: React.FC<UploadDocModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative w-full max-w-md rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl text-zinc-100">
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="relative w-full max-w-md rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl text-zinc-900">
+        <div className="flex items-center justify-between pb-4 border-b border-zinc-200">
           <div>
-            <h2 className="text-base font-semibold text-white tracking-tight flex items-center space-x-2">
-              <FileText className="w-4 h-4 text-sky-400" />
+            <h2 className="text-base font-bold text-zinc-900 tracking-tight flex items-center space-x-2">
+              <FileText className="w-4 h-4 text-sky-600" />
               <span>Upload Workspace Document</span>
             </h2>
-            <p className="text-xs text-zinc-400 mt-0.5">
-              Securely stored via Cloudinary and published to customer workspace.
+            <p className="text-xs text-zinc-600 mt-0.5">
+              Securely stored in Cloudinary folder &quot;workroom&quot; and published to customer workspace.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+            className="p-1.5 rounded-lg border border-zinc-200 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-50 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {error && (
-          <div className="mt-3 p-3 rounded-lg border border-rose-500/40 bg-rose-500/10 text-rose-300 text-xs">
+          <div className="mt-3 p-3 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-xs">
             {error}
           </div>
         )}
 
         <form onSubmit={handleSubmit} className="mt-4 space-y-4">
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-1">
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">
               Document Category *
             </label>
             <div className="space-y-1.5">
@@ -105,10 +105,10 @@ export const UploadDocModal: React.FC<UploadDocModalProps> = ({
                 <label
                   key={cat.value}
                   onClick={() => setCategory(cat.value)}
-                  className={`flex items-center justify-between p-2.5 rounded-lg border cursor-pointer text-xs transition-colors ${
+                  className={`flex items-center justify-between p-2.5 rounded-xl border cursor-pointer text-xs transition-colors ${
                     category === cat.value
-                      ? 'border-sky-500/60 bg-sky-950/20 text-white font-medium'
-                      : 'border-zinc-800/80 bg-zinc-900/40 hover:bg-zinc-900 text-zinc-300'
+                      ? 'border-zinc-900 bg-zinc-900 text-white font-medium shadow-sm'
+                      : 'border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800'
                   }`}
                 >
                   <div className="flex items-center space-x-2">
@@ -116,7 +116,7 @@ export const UploadDocModal: React.FC<UploadDocModalProps> = ({
                     <span>{cat.label}</span>
                   </div>
                   {category === cat.value && (
-                    <CheckCircle2 className="w-3.5 h-3.5 text-sky-400" />
+                    <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
                   )}
                 </label>
               ))}
@@ -124,7 +124,7 @@ export const UploadDocModal: React.FC<UploadDocModalProps> = ({
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-1">
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">
               Document Title *
             </label>
             <input
@@ -133,17 +133,17 @@ export const UploadDocModal: React.FC<UploadDocModalProps> = ({
               placeholder="e.g. SOW-Phase-1-Invoice-001"
               value={title}
               onChange={(e) => setTitle(e.target.value)}
-              className="w-full px-3.5 py-2 rounded-lg border border-zinc-800 bg-zinc-900/80 text-zinc-100 placeholder-zinc-500 text-xs focus:border-zinc-500 focus:outline-none"
+              className="w-full px-3.5 py-2 rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 text-xs focus:border-zinc-900 focus:outline-none"
             />
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-1">
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">
               Choose Document File (PDF, DOCX, XLSX, PNG, etc.)
             </label>
-            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-zinc-800 hover:border-zinc-600 rounded-xl bg-zinc-900/30 cursor-pointer transition-colors">
+            <label className="flex flex-col items-center justify-center p-6 border-2 border-dashed border-zinc-300 hover:border-zinc-400 rounded-xl bg-zinc-50/70 cursor-pointer transition-colors">
               <Upload className="w-6 h-6 text-zinc-400 mb-2" />
-              <span className="text-xs text-zinc-300 font-medium">
+              <span className="text-xs text-zinc-800 font-medium">
                 {file ? file.name : 'Click to select or drag document here'}
               </span>
               {file && (
@@ -159,21 +159,21 @@ export const UploadDocModal: React.FC<UploadDocModalProps> = ({
             </label>
           </div>
 
-          <div className="pt-3 border-t border-zinc-800 flex items-center justify-end space-x-2">
+          <div className="pt-3 border-t border-zinc-200 flex items-center justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-3.5 py-1.5 text-xs text-zinc-400 hover:text-white"
+              className="px-3.5 py-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-800"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-1.5 rounded-lg bg-white text-zinc-950 font-medium text-xs hover:bg-zinc-200 transition-colors disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors disabled:opacity-50 shadow-sm"
             >
-              {loading ? 'Uploading to Cloudinary...' : 'Upload Document'}
+              {loading ? 'Uploading...' : 'Upload Document'}
             </button>
           </div>
         </form>

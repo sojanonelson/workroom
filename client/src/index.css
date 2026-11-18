@@ -4,11 +4,11 @@
 
 @layer base {
   body {
-    @apply bg-studio-pure text-studio-100 font-sans antialiased selection:bg-studio-800 selection:text-white min-h-screen;
+    @apply bg-[#fafafa] text-zinc-900 font-sans antialiased selection:bg-zinc-200 selection:text-zinc-900 min-h-screen;
   }
 }
 
-/* Custom scrollbars */
+/* Custom scrollbars for clean light theme */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -19,10 +19,10 @@
 }
 
 ::-webkit-scrollbar-thumb {
-  background: #27272a;
+  background: #d4d4d8;
   border-radius: 3px;
 }
 
 ::-webkit-scrollbar-thumb:hover {
-  background: #3f3f46;
+  background: #a1a1aa;
 }

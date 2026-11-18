@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { X, CheckCircle2 } from 'lucide-react';
 import { projectApi } from '../services/api';
-import { DevelopmentStatus, Project } from '../types';
+import type { DevelopmentStatus, Project } from '../types';
 
 interface StatusUpdateModalProps {
   isOpen: boolean;
@@ -39,7 +39,6 @@ export const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
     e.preventDefault();
     setError(null);
     try {
-      setLoading(false);
       setLoading(true);
       const res = await projectApi.updateStatus(project.id, selectedStatus, note.trim());
       onStatusUpdated(res.project);
@@ -53,27 +52,27 @@ export const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
   };
 
   return (
-    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/80 backdrop-blur-sm flex items-center justify-center p-4">
-      <div className="relative w-full max-w-lg rounded-2xl border border-zinc-800 bg-zinc-950 p-6 shadow-2xl text-zinc-100">
-        <div className="flex items-center justify-between pb-4 border-b border-zinc-800">
+    <div className="fixed inset-0 z-50 overflow-y-auto bg-black/40 backdrop-blur-sm flex items-center justify-center p-4">
+      <div className="relative w-full max-w-lg rounded-2xl border border-zinc-200 bg-white p-6 shadow-2xl text-zinc-900">
+        <div className="flex items-center justify-between pb-4 border-b border-zinc-200">
           <div>
-            <h2 className="text-base font-semibold text-white tracking-tight">
+            <h2 className="text-base font-bold text-zinc-900 tracking-tight">
               Update Development Status
             </h2>
-            <p className="text-xs text-zinc-400 mt-0.5">
+            <p className="text-xs text-zinc-600 mt-0.5">
               Reflects immediately on the customer project view and records a timeline milestone.
             </p>
           </div>
           <button
             onClick={onClose}
-            className="p-1.5 rounded-lg border border-zinc-800 text-zinc-400 hover:text-white hover:bg-zinc-900 transition-colors"
+            className="p-1.5 rounded-lg border border-zinc-200 text-zinc-400 hover:text-zinc-700 hover:bg-zinc-50 transition-colors"
           >
             <X className="w-4 h-4" />
           </button>
         </div>
 
         {error && (
-          <div className="mt-3 p-3 rounded-lg border border-rose-500/40 bg-rose-500/10 text-rose-300 text-xs">
+          <div className="mt-3 p-3 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-xs">
             {error}
           </div>
         )}
@@ -86,27 +85,27 @@ export const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
                 onClick={() => setSelectedStatus(opt.value)}
                 className={`flex items-start justify-between p-3 rounded-xl border cursor-pointer transition-all ${
                   selectedStatus === opt.value
-                    ? 'border-sky-500/60 bg-sky-950/20 text-white shadow-sm'
-                    : 'border-zinc-800/80 bg-zinc-900/40 hover:bg-zinc-900/80 text-zinc-300'
+                    ? 'border-zinc-900 bg-zinc-900 text-white shadow-sm'
+                    : 'border-zinc-200 bg-white hover:bg-zinc-50 text-zinc-800'
                 }`}
               >
                 <div>
-                  <div className="text-xs font-medium tracking-tight flex items-center space-x-2">
-                    <span>{opt.label}</span>
+                  <div className="text-xs font-semibold tracking-tight">
+                    {opt.label}
                   </div>
-                  <div className="text-[11px] text-zinc-400 mt-0.5">
+                  <div className={`text-[11px] mt-0.5 ${selectedStatus === opt.value ? 'text-zinc-300' : 'text-zinc-500'}`}>
                     {opt.desc}
                   </div>
                 </div>
                 {selectedStatus === opt.value && (
-                  <CheckCircle2 className="w-4 h-4 text-sky-400 flex-shrink-0 mt-0.5" />
+                  <CheckCircle2 className="w-4 h-4 text-emerald-400 flex-shrink-0 mt-0.5" />
                 )}
               </label>
             ))}
           </div>
 
           <div>
-            <label className="block text-xs font-medium text-zinc-300 mb-1">
+            <label className="block text-xs font-semibold text-zinc-700 mb-1">
               Milestone Log Note (Visible to Customer)
             </label>
             <textarea
@@ -114,23 +113,23 @@ export const StatusUpdateModal: React.FC<StatusUpdateModalProps> = ({
               placeholder="e.g. Completed API authentication modules; initialized staging pipeline."
               value={note}
               onChange={(e) => setNote(e.target.value)}
-              className="w-full px-3 py-2 rounded-lg border border-zinc-800 bg-zinc-900/80 text-zinc-100 placeholder-zinc-500 text-xs focus:border-zinc-500 focus:outline-none"
+              className="w-full px-3 py-2 rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 text-xs focus:border-zinc-900 focus:outline-none"
             />
           </div>
 
-          <div className="pt-3 border-t border-zinc-800 flex items-center justify-end space-x-2">
+          <div className="pt-3 border-t border-zinc-200 flex items-center justify-end space-x-2">
             <button
               type="button"
               onClick={onClose}
               disabled={loading}
-              className="px-3.5 py-1.5 text-xs text-zinc-400 hover:text-white"
+              className="px-3.5 py-1.5 text-xs font-medium text-zinc-500 hover:text-zinc-800"
             >
               Cancel
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="px-4 py-1.5 rounded-lg bg-white text-zinc-950 font-medium text-xs hover:bg-zinc-200 transition-colors disabled:opacity-50"
+              className="px-4 py-2 rounded-xl bg-zinc-900 text-white font-medium text-xs hover:bg-zinc-800 transition-colors disabled:opacity-50 shadow-sm"
             >
               {loading ? 'Updating...' : 'Publish Status Update'}
             </button>

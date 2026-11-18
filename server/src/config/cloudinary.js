@@ -28,12 +28,13 @@ if (isCloudinaryConfigured) {
 }
 
 // Upload buffer directly to Cloudinary or fallback to local disk
-const uploadBuffer = async (buffer, originalname, folder = 'workroom_documents', resourceType = 'auto') => {
+const uploadBuffer = async (buffer, originalname, folder = 'workroom', resourceType = 'auto') => {
+  const targetFolder = folder.startsWith('workroom') ? folder : `workroom/${folder}`;
   if (isCloudinaryConfigured) {
     return new Promise((resolve, reject) => {
       const uploadStream = cloudinary.uploader.upload_stream(
         {
-          folder,
+          folder: targetFolder,
           resource_type: resourceType,
           use_filename: true,
           unique_filename: true,
