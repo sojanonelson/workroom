@@ -364,7 +364,7 @@ export const CustomerProjectView: React.FC = () => {
             <h2 className="text-sm font-bold text-zinc-900 tracking-tight flex items-center justify-between pb-3 border-b border-zinc-200">
               <span>Transaction History</span>
               <span className="font-mono text-xs text-emerald-700 font-bold">
-                {financials.currency} {Number(financials.total_paid).toLocaleString()} Verified
+                ₹{Number(financials.total_paid).toLocaleString('en-IN')} Verified
               </span>
             </h2>
 
@@ -374,7 +374,7 @@ export const CustomerProjectView: React.FC = () => {
                   <div key={txn.id} className="p-3 rounded-xl border border-zinc-200 bg-zinc-50/60 text-xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-zinc-900 font-mono">
-                        {txn.currency} {Number(txn.amount).toLocaleString()}
+                        ₹{Number(txn.amount).toLocaleString('en-IN')}
                       </span>
                       <span
                         className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded-full font-semibold ${

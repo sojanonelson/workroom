@@ -15,7 +15,7 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
   isOpen,
   onClose,
   projectId,
-  defaultCurrency = 'USD',
+  defaultCurrency = 'INR',
   onRecorded,
 }) => {
   const [amount, setAmount] = useState('');
@@ -96,17 +96,20 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
           <div className="grid grid-cols-2 gap-3">
             <div>
               <label className="block text-xs font-semibold text-zinc-700 mb-1">
-                Amount Paid *
+                Amount Paid (INR ₹) *
               </label>
-              <input
-                type="number"
-                step="0.01"
-                required
-                placeholder="2500.00"
-                value={amount}
-                onChange={(e) => setAmount(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-300 bg-white text-zinc-900 text-xs font-mono focus:border-zinc-900 focus:outline-none"
-              />
+              <div className="relative">
+                <span className="absolute left-3 top-2 text-zinc-500 font-mono text-xs font-semibold">₹</span>
+                <input
+                  type="number"
+                  step="0.01"
+                  required
+                  placeholder="25000.00"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value)}
+                  className="w-full pl-7 pr-3 py-2 rounded-xl border border-zinc-300 bg-white text-zinc-900 text-xs font-mono focus:border-zinc-900 focus:outline-none"
+                />
+              </div>
             </div>
 
             <div>
@@ -116,14 +119,9 @@ export const RecordPaymentModal: React.FC<RecordPaymentModalProps> = ({
               <select
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value)}
-                className="w-full px-3 py-2 rounded-xl border border-zinc-300 bg-white text-zinc-900 text-xs font-mono focus:border-zinc-900 focus:outline-none"
+                className="w-full px-3 py-2 rounded-xl border border-zinc-300 bg-zinc-50 text-zinc-900 text-xs font-mono focus:border-zinc-900 focus:outline-none"
               >
-                <option value="USD">USD ($)</option>
-                <option value="EUR">EUR (€)</option>
-                <option value="GBP">GBP (£)</option>
                 <option value="INR">INR (₹)</option>
-                <option value="CAD">CAD ($)</option>
-                <option value="AUD">AUD ($)</option>
               </select>
             </div>
           </div>

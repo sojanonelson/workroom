@@ -23,7 +23,7 @@ import {
   Settings,
   ShieldCheck,
   ExternalLink,
-  DollarSign,
+  IndianRupee,
 } from 'lucide-react';
 
 export const AdminProjectWorkspace: React.FC = () => {
@@ -234,11 +234,11 @@ export const AdminProjectWorkspace: React.FC = () => {
         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
           <div className="p-5 rounded-2xl border border-zinc-200 bg-white shadow-sm">
             <div className="text-xs text-zinc-600 font-medium flex items-center justify-between">
-              <span>Project Budget</span>
-              <DollarSign className="w-4 h-4 text-zinc-400" />
+              <span>Project Budget (INR)</span>
+              <IndianRupee className="w-4 h-4 text-zinc-400" />
             </div>
             <div className="text-xl font-bold font-mono text-zinc-900 mt-2">
-              {financials.currency} {Number(financials.budget_total).toLocaleString()}
+              ₹{Number(financials.budget_total).toLocaleString('en-IN')}
             </div>
           </div>
 
@@ -248,7 +248,7 @@ export const AdminProjectWorkspace: React.FC = () => {
               <CreditCard className="w-4 h-4 text-emerald-600" />
             </div>
             <div className="text-xl font-bold font-mono text-emerald-600 mt-2">
-              {financials.currency} {Number(financials.total_paid).toLocaleString()}
+              ₹{Number(financials.total_paid).toLocaleString('en-IN')}
             </div>
           </div>
 
@@ -258,7 +258,7 @@ export const AdminProjectWorkspace: React.FC = () => {
               <Clock className="w-4 h-4 text-amber-600" />
             </div>
             <div className="text-xl font-bold font-mono text-zinc-900 mt-2">
-              {financials.currency} {Number(financials.balance_due).toLocaleString()}
+              ₹{Number(financials.balance_due).toLocaleString('en-IN')}
             </div>
           </div>
 
@@ -557,7 +557,7 @@ export const AdminProjectWorkspace: React.FC = () => {
                             {new Date(txn.payment_date).toLocaleDateString()}
                           </td>
                           <td className="px-5 py-3.5 font-mono font-bold text-zinc-900">
-                            {txn.currency} {Number(txn.amount).toLocaleString()}
+                            ₹{Number(txn.amount).toLocaleString('en-IN')}
                           </td>
                           <td className="px-5 py-3.5 font-medium">{txn.payment_method}</td>
                           <td className="px-5 py-3.5 font-mono text-zinc-600 truncate max-w-[150px]">

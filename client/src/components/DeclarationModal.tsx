@@ -99,7 +99,7 @@ export const DeclarationModal: React.FC<DeclarationModalProps> = ({
           <div>
             <div className="text-[10px] uppercase font-mono tracking-wider text-zinc-600 font-medium">Budget</div>
             <div className="text-xs font-bold font-mono text-emerald-700 mt-0.5">
-              {project.currency} {Number(project.budget_total).toLocaleString()}
+              ₹{Number(project.budget_total).toLocaleString('en-IN')}
             </div>
           </div>
         </div>

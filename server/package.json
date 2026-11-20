@@ -3,9 +3,12 @@
   "version": "1.0.0",
   "description": "Backend API for Workroom - Client & Project Workspace Hub",
   "main": "src/index.js",
+  "license": "MIT",
   "scripts": {
     "start": "node src/index.js",
-    "dev": "nodemon src/index.js"
+    "build": "echo 'No build required for server'",
+    "dev": "nodemon src/index.js",
+    "db:reset": "node src/db/reset.js"
   },
   "dependencies": {
     "bcryptjs": "^2.4.3",

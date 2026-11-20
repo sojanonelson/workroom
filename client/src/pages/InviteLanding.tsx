@@ -148,7 +148,7 @@ export const InviteLanding: React.FC = () => {
             <div>
               <div className="text-[10px] uppercase font-mono tracking-wider text-zinc-600 font-medium">Budget</div>
               <div className="text-xs font-bold font-mono text-emerald-700 mt-0.5">
-                {project.currency} {Number(project.budget_total).toLocaleString()}
+                ₹{Number(project.budget_total).toLocaleString('en-IN')}
               </div>
             </div>
           </div>
@@ -469,7 +469,7 @@ export const InviteLanding: React.FC = () => {
             <h2 className="text-sm font-bold text-zinc-900 tracking-tight flex items-center justify-between pb-3 border-b border-zinc-200">
               <span>Financial Overview</span>
               <span className="font-mono text-xs text-emerald-700 font-bold">
-                {project.currency} {Number(fullWorkspace?.financials?.total_paid || 0).toLocaleString()} Paid
+                ₹{Number(fullWorkspace?.financials?.total_paid || 0).toLocaleString('en-IN')} Paid
               </span>
             </h2>
 
@@ -479,7 +479,7 @@ export const InviteLanding: React.FC = () => {
                   <div key={txn.id} className="p-3 rounded-xl border border-zinc-200 bg-zinc-50/60 text-xs space-y-1">
                     <div className="flex items-center justify-between">
                       <span className="font-bold text-zinc-900 font-mono">
-                        {txn.currency} {Number(txn.amount).toLocaleString()}
+                        ₹{Number(txn.amount).toLocaleString('en-IN')}
                       </span>
                       <span
                         className={`text-[10px] uppercase font-mono px-2 py-0.5 rounded-full font-semibold ${

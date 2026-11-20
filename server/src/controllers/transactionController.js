@@ -7,7 +7,7 @@ const recordTransaction = async (req, res) => {
     const { projectId } = req.params;
     const {
       amount,
-      currency = 'USD',
+      currency = 'INR',
       payment_method = 'Bank Transfer',
       transaction_reference,
       payment_date,
@@ -39,7 +39,7 @@ const recordTransaction = async (req, res) => {
       [
         projectId,
         parseFloat(amount),
-        currency,
+        currency || 'INR',
         payment_method,
         transaction_reference || null,
         payment_date || new Date().toISOString().split('T')[0],
@@ -104,7 +104,7 @@ const submitClientProof = async (req, res) => {
       [
         projectId,
         parseFloat(amount),
-        currency,
+        currency || 'INR',
         payment_method,
         transaction_reference || 'Client Submission',
         receiptUrl,
