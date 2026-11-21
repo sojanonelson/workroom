@@ -14,9 +14,9 @@ const initDB = async () => {
     console.log('✅ [Workroom] Database schema initialized successfully.');
 
     // Seed default admin if none exists
-    const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'workroom.admin@gmail.com';
+    const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'sojanonelson54@gmail.com';
     const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123';
-    const adminName = process.env.DEFAULT_ADMIN_NAME || 'Workroom Lead Admin';
+    const adminName = process.env.DEFAULT_ADMIN_NAME || 'Sojan Nelson';
 
     const existingAdmin = await query('SELECT id, email FROM users WHERE role = $1 LIMIT 1', ['admin']);
     if (existingAdmin.rowCount === 0) {

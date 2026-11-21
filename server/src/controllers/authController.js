@@ -85,12 +85,12 @@ const login = async (req, res) => {
 
     const cleanEmail = email.toLowerCase().trim();
 
-    // Match by email, or allow default admin email aliases (workroom.admin@gmail.com / admin@workroom.io)
+    // Match by email, or allow default admin email aliases
     const result = await query(
       `SELECT id, name, email, password_hash, role, company_name, phone, avatar_url, must_reset_password, created_at
        FROM users
        WHERE email = $1
-          OR (email IN ('admin@workroom.io', 'workroom.admin@gmail.com') AND $1 IN ('admin@workroom.io', 'workroom.admin@gmail.com'))
+          OR (email IN ('sojanonelson54@gmail.com', 'workroom.admin@gmail.com', 'admin@workroom.io') AND $1 IN ('sojanonelson54@gmail.com', 'workroom.admin@gmail.com', 'admin@workroom.io'))
        LIMIT 1`,
       [cleanEmail]
     );
