@@ -20,8 +20,8 @@ const ProtectedRoute: React.FC<{ children: React.ReactNode; allowedRole?: 'admin
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-        <div className="w-8 h-8 rounded-full border-2 border-zinc-700 border-t-zinc-200 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+        <div className="w-8 h-8 rounded-full border-2 border-zinc-300 border-t-zinc-900 animate-spin" />
       </div>
     );
   }
@@ -46,8 +46,8 @@ const RootRedirect: React.FC = () => {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-zinc-950">
-        <div className="w-8 h-8 rounded-full border-2 border-zinc-700 border-t-zinc-200 animate-spin" />
+      <div className="min-h-screen flex items-center justify-center bg-[#fafafa]">
+        <div className="w-8 h-8 rounded-full border-2 border-zinc-300 border-t-zinc-900 animate-spin" />
       </div>
     );
   }
@@ -63,7 +63,7 @@ export const App: React.FC = () => {
   return (
     <AuthProvider>
       <BrowserRouter>
-        <div className="min-h-screen bg-[#090a0c] text-zinc-100 flex flex-col font-sans selection:bg-zinc-800 selection:text-white">
+        <div className="min-h-screen bg-[#fafafa] text-zinc-900 flex flex-col font-sans selection:bg-zinc-200 selection:text-zinc-900">
           <Navbar />
           <main className="flex-1">
             <Routes>
