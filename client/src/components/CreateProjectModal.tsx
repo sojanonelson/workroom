@@ -12,9 +12,21 @@ import {
   IndianRupee,
   Sparkles,
   AlertCircle,
+  Plus,
 } from 'lucide-react';
 import { projectApi } from '../services/api';
 import type { Project } from '../types';
+
+const PRESET_CATEGORIES = [
+  'Web App',
+  'Mobile App (iOS & Android)',
+  'UI/UX Design',
+  'Backend & Database',
+  'SaaS Platform',
+  'E-Commerce',
+  'AI Integration',
+  'DevOps & Cloud',
+];
 
 interface CreateProjectModalProps {
   isOpen: boolean;
@@ -29,8 +41,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
 
   // Step 1: Project Essentials
   const [name, setName] = useState('');
-  const [category, setCategory] = useState('Web Development');
-  const [estimatedDuration, setEstimatedDuration] = useState('6 Weeks');
+  const [selectedCategories, setSelectedCategories] = useState<string[]>(['Web App']);
+  const [customCategoryInput, setCustomCategoryInput] = useState('');
+  const [estimatedDuration, setEstimatedDuration] = useState('');
   const [startDate, setStartDate] = useState(new Date().toISOString().split('T')[0]);
   const [developmentStatus, setDevelopmentStatus] = useState('Development Started');
   const [buildLink, setBuildLink] = useState('');
@@ -41,7 +54,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
   const [clientCompany, setClientCompany] = useState('');
 
   // Step 3: Budget & Payment Details
-  const [budgetTotal, setBudgetTotal] = useState('50000');
+  const [budgetTotal, setBudgetTotal] = useState('');
   const currency = 'INR';
   const [bankName, setBankName] = useState('');
   const [bankAccountName, setBankAccountName] = useState('');
@@ -57,6 +70,23 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
   const handleClose = () => {
     setError(null);
     setCurrentStep(1);
+    setName('');
+    setSelectedCategories(['Web App']);
+    setCustomCategoryInput('');
+    setEstimatedDuration('');
+    setBuildLink('');
+    setClientEmail('');
+    setClientPhone('');
+    setClientCompany('');
+    setBudgetTotal('');
+    setBankName('');
+    setBankAccountName('');
+    setBankAccountNumber('');
+    setBankIfscSwift('');
+    setBankUpiIban('');
+    setBankNotes('');
+    setQrFile(null);
+    setQrPreview(null);
     onClose();
   };
 
@@ -73,6 +103,36 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
     setQrPreview(null);
   };
 
+  const toggleCategory = (cat: string) => {
+    setSelectedCategories((prev) => {
+      if (prev.includes(cat)) {
+        if (prev.length === 1) return prev; // Keep at least one
+        return prev.filter((c) => c !== cat);
+      } else {
+        return [...prev, cat];
+      }
+    });
+    if (error) setError(null);
+  };
+
+  const removeCategory = (cat: string) => {
+    if (selectedCategories.length === 1) {
+      setError('Please keep at least one category or platform.');
+      return;
+    }
+    setSelectedCategories((prev) => prev.filter((c) => c !== cat));
+  };
+
+  const addCustomCategory = () => {
+    const trimmed = customCategoryInput.trim();
+    if (!trimmed) return;
+    if (!selectedCategories.includes(trimmed)) {
+      setSelectedCategories((prev) => [...prev, trimmed]);
+    }
+    setCustomCategoryInput('');
+    if (error) setError(null);
+  };
+
   const validateStep = (step: number): boolean => {
     setError(null);
     if (step === 1) {
@@ -80,8 +140,8 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
         setError('Please enter a project name to continue.');
         return false;
       }
-      if (!category.trim()) {
-        setError('Please select a project category.');
+      if (selectedCategories.length === 0) {
+        setError('Please select at least one platform or category.');
         return false;
       }
       return true;
@@ -135,7 +195,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
 
       const formData = new FormData();
       formData.append('name', name.trim());
-      formData.append('category', category.trim());
+      formData.append('category', selectedCategories.join(', '));
       formData.append('client_email', clientEmail.trim().toLowerCase());
       formData.append('client_phone', clientPhone.trim());
       formData.append('client_company', clientCompany.trim());
@@ -275,26 +335,93 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                 />
               </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
-                <div>
-                  <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
-                    Category <span className="text-rose-500">*</span>
+              {/* Multi-category & Platform Selection */}
+              <div>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs font-semibold text-zinc-700">
+                    Platforms & Categories <span className="text-rose-500">*</span>
                   </label>
-                  <select
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 bg-white text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
-                  >
-                    <option value="Web Development">Web Development</option>
-                    <option value="Mobile App (iOS & Android)">Mobile App (iOS & Android)</option>
-                    <option value="SaaS Architecture">SaaS Architecture</option>
-                    <option value="UI/UX Product Design">UI/UX Product Design</option>
-                    <option value="E-Commerce & Checkout">E-Commerce & Checkout</option>
-                    <option value="AI Integration & LLMs">AI Integration & LLMs</option>
-                    <option value="API & Backend Engineering">API & Backend Engineering</option>
-                  </select>
+                  <span className="text-[11px] text-zinc-400 font-mono">
+                    Select all that apply (e.g. Web + Mobile)
+                  </span>
                 </div>
 
+                {/* Selected Categories Display */}
+                <div className="p-2.5 rounded-xl border border-zinc-200 bg-zinc-50/70 mb-2.5 min-h-[44px] flex flex-wrap items-center gap-1.5">
+                  {selectedCategories.length === 0 ? (
+                    <span className="text-xs text-zinc-400 italic">No categories selected. Choose from below:</span>
+                  ) : (
+                    selectedCategories.map((cat) => (
+                      <span
+                        key={cat}
+                        className="inline-flex items-center space-x-1.5 px-2.5 py-1 rounded-lg bg-zinc-900 text-white text-xs font-semibold shadow-2xs animate-in fade-in duration-100"
+                      >
+                        <span>{cat}</span>
+                        <button
+                          type="button"
+                          onClick={() => removeCategory(cat)}
+                          className="hover:text-rose-300 p-0.5 rounded transition-colors"
+                          title="Remove category"
+                        >
+                          <X className="w-3 h-3" />
+                        </button>
+                      </span>
+                    ))
+                  )}
+                </div>
+
+                {/* Quick Toggle Preset Pills */}
+                <div className="flex flex-wrap gap-1.5 mb-2.5">
+                  {PRESET_CATEGORIES.map((cat) => {
+                    const isSelected = selectedCategories.includes(cat);
+                    return (
+                      <button
+                        key={cat}
+                        type="button"
+                        onClick={() => toggleCategory(cat)}
+                        className={`px-2.5 py-1 rounded-lg text-xs font-medium transition-all flex items-center space-x-1 border ${
+                          isSelected
+                            ? 'bg-violet-50 text-violet-800 border-violet-200 font-semibold shadow-2xs'
+                            : 'bg-white text-zinc-600 border-zinc-200 hover:border-zinc-300 hover:text-zinc-900'
+                        }`}
+                      >
+                        {isSelected ? (
+                          <Check className="w-3 h-3 text-violet-600" />
+                        ) : (
+                          <Plus className="w-3 h-3 text-zinc-400" />
+                        )}
+                        <span>{cat}</span>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Custom Category Tag Input */}
+                <div className="flex items-center space-x-2">
+                  <input
+                    type="text"
+                    placeholder="Type custom platform or tag (e.g. Chrome Extension)..."
+                    value={customCategoryInput}
+                    onChange={(e) => setCustomCategoryInput(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') {
+                        e.preventDefault();
+                        addCustomCategory();
+                      }
+                    }}
+                    className="flex-1 px-3 py-1.5 rounded-lg border border-zinc-300 bg-white text-zinc-900 text-xs placeholder-zinc-400 focus:border-zinc-900 focus:outline-none"
+                  />
+                  <button
+                    type="button"
+                    onClick={addCustomCategory}
+                    className="px-3 py-1.5 rounded-lg border border-zinc-200 bg-white hover:bg-zinc-100 text-xs font-semibold text-zinc-700 transition-colors shadow-2xs"
+                  >
+                    Add Platform
+                  </button>
+                </div>
+              </div>
+
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
                     Estimated Duration <span className="text-rose-500">*</span>
@@ -307,9 +434,7 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 text-sm focus:border-zinc-900 focus:outline-none"
                   />
                 </div>
-              </div>
 
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
                     Development Start Date
@@ -321,7 +446,9 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                     className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 bg-white text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none"
                   />
                 </div>
+              </div>
 
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
                     Initial Development Status
@@ -340,19 +467,19 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                     <option value="Ready for Launch">Ready for Launch</option>
                   </select>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
-                  Live Preview / Staging Build Link <span className="text-zinc-400 font-normal">(Optional)</span>
-                </label>
-                <input
-                  type="url"
-                  placeholder="https://staging.acme.com"
-                  value={buildLink}
-                  onChange={(e) => setBuildLink(e.target.value)}
-                  className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 text-sm focus:border-zinc-900 focus:outline-none font-mono"
-                />
+                <div>
+                  <label className="block text-xs font-semibold text-zinc-700 mb-1.5">
+                    Live Preview / Staging Build Link <span className="text-zinc-400 font-normal">(Optional)</span>
+                  </label>
+                  <input
+                    type="url"
+                    placeholder="https://staging.acme.com"
+                    value={buildLink}
+                    onChange={(e) => setBuildLink(e.target.value)}
+                    className="w-full px-3.5 py-2.5 rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 text-sm focus:border-zinc-900 focus:outline-none font-mono"
+                  />
+                </div>
               </div>
             </div>
           )}
@@ -433,12 +560,13 @@ export const CreateProjectModal: React.FC<CreateProjectModalProps> = ({ isOpen, 
                       step="0.01"
                       min="0"
                       required
+                      placeholder="e.g. 50000"
                       value={budgetTotal}
                       onChange={(e) => {
                         setBudgetTotal(e.target.value);
                         if (error) setError(null);
                       }}
-                      className="w-full pl-8 pr-3.5 py-2.5 rounded-xl border border-zinc-300 bg-white text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none font-mono"
+                      className="w-full pl-8 pr-3.5 py-2.5 rounded-xl border border-zinc-300 bg-white text-zinc-900 text-sm focus:border-zinc-900 focus:outline-none font-mono placeholder:font-sans placeholder:text-zinc-400"
                     />
                   </div>
                 </div>

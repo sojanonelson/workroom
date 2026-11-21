@@ -6,7 +6,7 @@ import { StatusBadge } from '../components/StatusBadge';
 import { CreateProjectModal } from '../components/CreateProjectModal';
 import { AdminUsersModal } from '../components/AdminUsersModal';
 import { AdminLayout } from '../components/AdminLayout';
-import { ArrowDownRight, ArrowUpRight, Check, CircleDollarSign, Clock3, Copy, FolderKanban, Layers3, Plus, Search, SlidersHorizontal, Sparkles, Users } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Check, CircleDollarSign, Clock3, Copy, FolderKanban, Layers3, Plus, Search, SlidersHorizontal, Sparkles, Users, Trash2 } from 'lucide-react';
 
 const money = (amount: number) => `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 
@@ -33,18 +33,51 @@ export const AdminDashboard: React.FC = () => {
     }
   };
 
+  const handleDeleteProject = async (id: string, name: string) => {
+    if (!window.confirm(`Are you sure you want to permanently delete project "${name}"?\nThis will remove the project, all its milestones, documents, and payments.`)) {
+      return;
+    }
+
+    try {
+      await projectApi.delete(id);
+      setProjects((current) => current.filter((p) => p.id !== id));
+    } catch (err: any) {
+      console.error('Failed to delete project:', err);
+      alert(err.response?.data?.error || 'Failed to delete project.');
+    }
+  };
+
   const filteredProjects = useMemo(() => {
     const query = search.trim().toLowerCase();
     return projects.filter((project) => {
-      const matchesSearch = !query || [project.name, project.client_email, project.client_company || ''].some((value) => value.toLowerCase().includes(query));
-      return matchesSearch && (categoryFilter === 'ALL' || project.category === categoryFilter);
+      const matchesSearch =
+        !query ||
+        [project.name, project.client_email, project.client_company || ''].some((value) =>
+          value.toLowerCase().includes(query)
+        );
+      const projectCats = project.category
+        ? project.category.split(',').map((c) => c.trim().toLowerCase())
+        : [];
+      const matchesCategory =
+        categoryFilter === 'ALL' ||
+        projectCats.includes(categoryFilter.toLowerCase()) ||
+        project.category === categoryFilter;
+      return matchesSearch && matchesCategory;
     });
   }, [projects, search, categoryFilter]);
 
   const inDevProjects = projects.filter((project) => ['Development Started', 'In Progress', 'Testing & QA', 'Alpha Build Ready'].includes(project.development_status)).length;
   const totalBudget = projects.reduce((sum, project) => sum + Number(project.budget_total || 0), 0);
   const totalPaid = projects.reduce((sum, project) => sum + Number(project.total_paid || 0), 0);
-  const categories = Array.from(new Set(projects.map((project) => project.category).filter(Boolean)));
+  const categories = Array.from(
+    new Set(
+      projects
+        .flatMap((project) =>
+          project.category ? project.category.split(',').map((c) => c.trim()) : []
+        )
+        .filter(Boolean)
+    )
+  );
 
   const metrics = [
     { label: 'Total projects', value: projects.length.toString(), note: 'Across all clients', icon: Layers3, tint: 'text-violet-600 bg-violet-50' },
@@ -108,7 +141,36 @@ export const AdminDashboard: React.FC = () => {
                   <article key={project.id} className="group min-w-0 rounded-xl border border-slate-200/80 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,0.03)] transition hover:border-violet-200 hover:shadow-md sm:p-5">
                     <div className="flex min-w-0 items-start gap-3">
                       <span className="flex h-10 w-10 shrink-0 items-center justify-center rounded-xl bg-slate-100 text-sm font-semibold text-slate-600">{project.name.trim().charAt(0).toUpperCase() || 'P'}</span>
-                      <div className="min-w-0 flex-1"><div className="mb-1 flex min-w-0 flex-wrap items-center gap-2"><span className="max-w-full truncate text-[10px] font-semibold uppercase tracking-[0.09em] text-violet-600">{project.category}</span>{project.build_link && <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700"><span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Live build</span>}</div><Link to={`/admin/projects/${project.id}`} className="block truncate text-[15px] font-semibold tracking-tight text-slate-900 hover:text-violet-700">{project.name}</Link><p className="mt-1 truncate text-xs text-slate-500">{project.client_company ? `${project.client_company} · ` : ''}{project.client_email}</p></div>
+                      <div className="min-w-0 flex-1">
+                        <div className="mb-1 flex min-w-0 flex-wrap items-center gap-1.5">
+                          {project.category ? (
+                            project.category.split(',').map((cat, i) => (
+                              <span
+                                key={i}
+                                className="max-w-full truncate text-[10px] font-semibold uppercase tracking-[0.09em] text-violet-700 bg-violet-50 border border-violet-100 px-2 py-0.5 rounded-md"
+                              >
+                                {cat.trim()}
+                              </span>
+                            ))
+                          ) : (
+                            <span className="text-[10px] font-semibold uppercase tracking-[0.09em] text-slate-400">
+                              General
+                            </span>
+                          )}
+                          {project.build_link && (
+                            <span className="inline-flex items-center gap-1 rounded-full bg-emerald-50 px-2 py-0.5 text-[10px] font-medium text-emerald-700">
+                              <span className="h-1.5 w-1.5 rounded-full bg-emerald-500" /> Live build
+                            </span>
+                          )}
+                        </div>
+                        <Link to={`/admin/projects/${project.id}`} className="block truncate text-[15px] font-semibold tracking-tight text-slate-900 hover:text-violet-700">
+                          {project.name}
+                        </Link>
+                        <p className="mt-1 truncate text-xs text-slate-500">
+                          {project.client_company ? `${project.client_company} · ` : ''}
+                          {project.client_email}
+                        </p>
+                      </div>
                       <div className="max-w-[48%] shrink-0"><StatusBadge status={project.development_status} size="sm" /></div>
                     </div>
 
@@ -118,7 +180,25 @@ export const AdminDashboard: React.FC = () => {
                     </div>
 
                     <div className="mt-3.5 flex items-center justify-between gap-3">
-                      <button onClick={() => handleCopyInvite(project.invite_token, project.id)} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-800" title="Copy client invite link">{copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}<span>{copied ? 'Link copied' : 'Copy invite link'}</span></button>
+                      <div className="flex items-center gap-1">
+                        <button
+                          onClick={() => handleCopyInvite(project.invite_token, project.id)}
+                          className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-medium text-slate-500 transition hover:bg-slate-100 hover:text-slate-800"
+                          title="Copy client invite link"
+                        >
+                          {copied ? <Check size={14} className="text-emerald-600" /> : <Copy size={14} />}
+                          <span>{copied ? 'Link copied' : 'Copy invite'}</span>
+                        </button>
+                        <button
+                          type="button"
+                          onClick={() => handleDeleteProject(project.id, project.name)}
+                          className="inline-flex min-h-9 items-center gap-1 rounded-lg px-2 text-xs font-medium text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"
+                          title="Delete project"
+                        >
+                          <Trash2 size={13} />
+                          <span>Delete</span>
+                        </button>
+                      </div>
                       <Link to={`/admin/projects/${project.id}`} className="inline-flex min-h-9 items-center gap-1.5 rounded-lg px-2 text-xs font-semibold text-violet-700 transition hover:bg-violet-50">Open workspace <ArrowUpRight size={14} /></Link>
                     </div>
                   </article>

@@ -101,7 +101,23 @@ export const CustomerProjectView: React.FC = () => {
               <StatusBadge status={project.development_status} size="lg" />
             </div>
             <p className="text-xs text-zinc-600 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-              <span>Category: <strong className="text-zinc-900">{project.category}</strong></span>
+              <span className="flex items-center gap-1.5">
+                <span>Platforms:</span>
+                <span className="inline-flex flex-wrap gap-1">
+                  {project.category ? (
+                    project.category.split(',').map((cat, idx) => (
+                      <span
+                        key={idx}
+                        className="font-semibold text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded text-[11px]"
+                      >
+                        {cat.trim()}
+                      </span>
+                    ))
+                  ) : (
+                    <strong className="text-zinc-900">General</strong>
+                  )}
+                </span>
+              </span>
               {project.estimated_duration && <span>Target Timeline: <strong className="text-zinc-900">{project.estimated_duration}</strong></span>}
               {project.start_date && <span>Kickoff Date: <strong className="text-zinc-900">{new Date(project.start_date).toLocaleDateString()}</strong></span>}
             </p>

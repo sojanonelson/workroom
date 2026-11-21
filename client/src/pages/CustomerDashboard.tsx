@@ -68,10 +68,23 @@ export const CustomerDashboard: React.FC = () => {
                 className="rounded-2xl border border-zinc-200 bg-white p-5 flex flex-col justify-between hover:border-zinc-300 hover:shadow-md transition-all shadow-sm group"
               >
                 <div>
-                  <div className="flex items-center justify-between mb-3">
-                    <span className="text-[10px] uppercase font-mono tracking-wider text-sky-700 font-semibold">
-                      {p.category}
-                    </span>
+                  <div className="flex items-center justify-between mb-3 gap-2">
+                    <div className="flex flex-wrap items-center gap-1.5">
+                      {p.category ? (
+                        p.category.split(',').map((cat, idx) => (
+                          <span
+                            key={idx}
+                            className="text-[10px] uppercase font-mono tracking-wider text-sky-700 font-semibold bg-sky-50 border border-sky-100 px-2 py-0.5 rounded"
+                          >
+                            {cat.trim()}
+                          </span>
+                        ))
+                      ) : (
+                        <span className="text-[10px] uppercase font-mono tracking-wider text-zinc-400 font-semibold">
+                          General
+                        </span>
+                      )}
+                    </div>
                     <StatusBadge status={p.development_status} size="sm" />
                   </div>
 

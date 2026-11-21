@@ -471,6 +471,9 @@ const acceptDeclaration = async (req, res) => {
 const deleteProject = async (req, res) => {
   try {
     const { id } = req.params;
+    await query('DELETE FROM transactions WHERE project_id = $1', [id]);
+    await query('DELETE FROM project_updates WHERE project_id = $1', [id]);
+    await query('DELETE FROM project_documents WHERE project_id = $1', [id]);
     const result = await query('DELETE FROM projects WHERE id = $1 RETURNING id, name', [id]);
     if (result.rowCount === 0) {
       return res.status(404).json({ error: 'Project not found.' });

@@ -140,15 +140,17 @@ export const AdminProjectWorkspace: React.FC = () => {
   };
 
   const handleDeleteProject = async () => {
-    if (!id) return;
-    const confirmName = prompt(`To confirm deletion, type the project name "${workspace?.project.name}":`);
-    if (confirmName !== workspace?.project.name) return;
+    if (!id || !workspace) return;
+    if (!window.confirm(`Permanently delete project "${workspace.project.name}"?\nAll associated milestones, documents, and payments will be removed.`)) {
+      return;
+    }
 
     try {
       await projectApi.delete(id);
       navigate('/admin');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Failed to delete project:', err);
+      alert(err.response?.data?.error || 'Failed to delete project.');
     }
   };
 
@@ -192,7 +194,23 @@ export const AdminProjectWorkspace: React.FC = () => {
                 </button>
               </div>
               <p className="text-xs text-zinc-600 mt-1 flex flex-wrap items-center gap-x-4 gap-y-1">
-                <span>Category: <strong className="text-zinc-900">{project.category}</strong></span>
+                <span className="flex items-center gap-1.5">
+                  <span>Platforms:</span>
+                  <span className="inline-flex flex-wrap gap-1">
+                    {project.category ? (
+                      project.category.split(',').map((cat, idx) => (
+                        <span
+                          key={idx}
+                          className="font-semibold text-zinc-900 bg-zinc-100 border border-zinc-200 px-2 py-0.5 rounded text-[11px]"
+                        >
+                          {cat.trim()}
+                        </span>
+                      ))
+                    ) : (
+                      <strong className="text-zinc-900">General</strong>
+                    )}
+                  </span>
+                </span>
                 <span>Client: <strong className="text-zinc-900">{project.client_company || project.client_email}</strong></span>
                 {project.estimated_duration && <span>Duration: <strong className="text-zinc-900">{project.estimated_duration}</strong></span>}
                 {project.start_date && <span>Kickoff: <strong className="text-zinc-900">{new Date(project.start_date).toLocaleDateString()}</strong></span>}
@@ -225,6 +243,17 @@ export const AdminProjectWorkspace: React.FC = () => {
                     <span>Share Client Link</span>
                   </>
                 )}
+              </button>
+
+              {/* Delete Project */}
+              <button
+                type="button"
+                onClick={handleDeleteProject}
+                className="px-3.5 py-2 rounded-xl border border-zinc-200 bg-white text-zinc-500 hover:text-rose-600 hover:bg-rose-50 hover:border-rose-200 text-xs font-medium transition-colors shadow-sm flex items-center space-x-1.5"
+                title="Delete this project"
+              >
+                <Trash2 className="w-3.5 h-3.5" />
+                <span>Delete</span>
               </button>
             </div>
           </div>
