@@ -84,7 +84,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
           <div className="mb-4 flex items-center gap-2 rounded-lg bg-emerald-50 px-3 py-2 text-[11px] font-medium text-emerald-700"><span className="h-2 w-2 rounded-full bg-emerald-500" /><span>All systems operational</span></div>
           <div className="flex items-center gap-3">
             <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-violet-100 text-xs font-semibold text-violet-700">{user?.name?.charAt(0)?.toUpperCase() || 'A'}</div>
-            <div className="min-w-0 flex-1"><div className="truncate text-xs font-semibold text-slate-800">{user?.name || 'Admin'}</div><div className="truncate pt-0.5 text-[11px] text-slate-400">{user?.email || 'sojanonelson54@gmail.com'}</div></div>
+            <div className="min-w-0 flex-1"><div className="truncate text-xs font-semibold text-slate-800">{user?.name || 'Admin'}</div><div className="truncate pt-0.5 text-[11px] text-slate-400">{user?.email || ''}</div></div>
             <button onClick={handleLogout} title="Sign out" aria-label="Sign out" className="rounded-lg p-2 text-slate-400 transition hover:bg-rose-50 hover:text-rose-600"><LogOut size={16} /></button>
           </div>
         </div>

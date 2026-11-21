@@ -120,11 +120,7 @@ export const Login: React.FC = () => {
             </button>
           </form>
 
-          {/* Seed hint for quick access */}
-          <div className="mt-4 p-2.5 rounded-lg border border-zinc-200 bg-zinc-50 text-[11px] text-zinc-600 font-mono flex items-center justify-between">
-            <span className="font-semibold text-zinc-800">Admin Login:</span>
-            <span>sojanonelson54@gmail.com / Admin@123</span>
-          </div>
+
 
           <div className="mt-6 pt-5 border-t border-zinc-100 text-center">
             <p className="text-xs text-zinc-600">
