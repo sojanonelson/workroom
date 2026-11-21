@@ -8,6 +8,7 @@ export interface User {
   company_name?: string;
   phone?: string;
   avatar_url?: string;
+  must_reset_password?: boolean;
   created_at: string;
 }
 

@@ -123,7 +123,7 @@ export const Login: React.FC = () => {
           {/* Seed hint for quick access */}
           <div className="mt-4 p-2.5 rounded-lg border border-zinc-200 bg-zinc-50 text-[11px] text-zinc-600 font-mono flex items-center justify-between">
             <span className="font-semibold text-zinc-800">Admin Login:</span>
-            <span>admin@workroom.io / Admin@123</span>
+            <span>workroom.admin@gmail.com / Admin@123</span>
           </div>
 
           <div className="mt-6 pt-5 border-t border-zinc-100 text-center">

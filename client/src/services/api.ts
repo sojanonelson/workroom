@@ -55,6 +55,24 @@ export const authApi = {
     const res = await apiClient.get<{ user: User }>('/auth/me');
     return res.data.user;
   },
+  resetFirstPassword: async (new_password: string) => {
+    const res = await apiClient.post<{ message: string; token: string; user: User }>('/auth/reset-first-password', {
+      new_password,
+    });
+    return res.data;
+  },
+  getAllUsers: async () => {
+    const res = await apiClient.get<{ users: User[] }>('/auth/users');
+    return res.data.users;
+  },
+  updateUserRole: async (id: string, role: 'admin' | 'customer') => {
+    const res = await apiClient.patch<{ message: string; user: User }>(`/auth/users/${id}/role`, { role });
+    return res.data;
+  },
+  createAdmin: async (data: { name: string; email: string; password?: string }) => {
+    const res = await apiClient.post<{ message: string; user: User }>('/auth/users/create-admin', data);
+    return res.data;
+  },
 };
 
 // Projects Endpoints

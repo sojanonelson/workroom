@@ -4,8 +4,9 @@ import { projectApi } from '../services/api';
 import type { Project } from '../types';
 import { StatusBadge } from '../components/StatusBadge';
 import { CreateProjectModal } from '../components/CreateProjectModal';
+import { AdminUsersModal } from '../components/AdminUsersModal';
 import { AdminLayout } from '../components/AdminLayout';
-import { ArrowDownRight, ArrowUpRight, Check, CircleDollarSign, Clock3, Copy, FolderKanban, Layers3, Plus, Search, SlidersHorizontal, Sparkles } from 'lucide-react';
+import { ArrowDownRight, ArrowUpRight, Check, CircleDollarSign, Clock3, Copy, FolderKanban, Layers3, Plus, Search, SlidersHorizontal, Sparkles, Users } from 'lucide-react';
 
 const money = (amount: number) => `₹${amount.toLocaleString('en-IN', { maximumFractionDigits: 0 })}`;
 
@@ -15,6 +16,7 @@ export const AdminDashboard: React.FC = () => {
   const [search, setSearch] = useState('');
   const [categoryFilter, setCategoryFilter] = useState('ALL');
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   const [copiedId, setCopiedId] = useState<string | null>(null);
 
   useEffect(() => {
@@ -60,7 +62,16 @@ export const AdminDashboard: React.FC = () => {
             <h1 className="text-[26px] font-semibold leading-tight tracking-[-0.035em] text-slate-950 sm:text-[32px]">Good to see you back.</h1>
             <p className="mt-2 max-w-xl text-sm leading-6 text-slate-500">Here’s what’s happening across your client projects today.</p>
           </div>
-          <button onClick={() => setIsCreateModalOpen(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-semibold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2"><Plus size={17} /> New project</button>
+          <div className="flex flex-wrap items-center gap-2.5">
+            <button
+              onClick={() => setIsUsersModalOpen(true)}
+              className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white px-3.5 text-sm font-semibold text-slate-700 shadow-sm transition hover:bg-slate-50 focus:outline-none"
+            >
+              <Users size={17} className="text-slate-500" />
+              <span>Team & Admins</span>
+            </button>
+            <button onClick={() => setIsCreateModalOpen(true)} className="inline-flex min-h-11 items-center justify-center gap-2 rounded-lg bg-violet-600 px-4 text-sm font-semibold text-white shadow-sm shadow-violet-200 transition hover:bg-violet-700 focus:outline-none focus:ring-2 focus:ring-violet-400 focus:ring-offset-2"><Plus size={17} /> New project</button>
+          </div>
         </div>
 
         <section aria-label="Workspace summary" className="mb-9 grid grid-cols-2 gap-3 lg:grid-cols-4 lg:gap-4">
@@ -118,6 +129,7 @@ export const AdminDashboard: React.FC = () => {
         </section>
 
         <CreateProjectModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onCreated={(project) => setProjects((current) => [project, ...current])} />
+        <AdminUsersModal isOpen={isUsersModalOpen} onClose={() => setIsUsersModalOpen(false)} />
       </div>
     </AdminLayout>
   );

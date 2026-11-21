@@ -10,10 +10,11 @@ const initDB = async () => {
 
     console.log('🔄 [Workroom] Initializing database schema on PostgreSQL...');
     await query(schemaSql);
+    await query('ALTER TABLE users ADD COLUMN IF NOT EXISTS must_reset_password BOOLEAN DEFAULT FALSE;');
     console.log('✅ [Workroom] Database schema initialized successfully.');
 
     // Seed default admin if none exists
-    const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'admin@workroom.io';
+    const adminEmail = process.env.DEFAULT_ADMIN_EMAIL || 'workroom.admin@gmail.com';
     const adminPassword = process.env.DEFAULT_ADMIN_PASSWORD || 'Admin@123';
     const adminName = process.env.DEFAULT_ADMIN_NAME || 'Workroom Lead Admin';
 
@@ -21,8 +22,8 @@ const initDB = async () => {
     if (existingAdmin.rowCount === 0) {
       const passwordHash = await bcrypt.hash(adminPassword, 10);
       await query(
-        `INSERT INTO users (name, email, password_hash, role, company_name, phone)
-         VALUES ($1, $2, $3, 'admin', 'Workroom Studio', '+1 (555) 019-2834')`,
+        `INSERT INTO users (name, email, password_hash, role, company_name, phone, must_reset_password)
+         VALUES ($1, $2, $3, 'admin', 'Workroom Studio', '+1 (555) 019-2834', TRUE)`,
         [adminName, adminEmail.toLowerCase().trim(), passwordHash]
       );
       console.log(`✅ [Workroom] Default admin account seeded: ${adminEmail} (password: ${adminPassword})`);

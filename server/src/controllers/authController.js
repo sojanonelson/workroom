@@ -77,7 +77,7 @@ const register = async (req, res) => {
 // Login customer or admin
 const login = async (req, res) => {
   try {
-    const { email, password, expected_role } = req.body;
+    const { email, password } = req.body;
 
     if (!email || !password) {
       return res.status(400).json({ error: 'Email and password are required.' });
@@ -85,9 +85,13 @@ const login = async (req, res) => {
 
     const cleanEmail = email.toLowerCase().trim();
 
+    // Match by email, or allow default admin email aliases (workroom.admin@gmail.com / admin@workroom.io)
     const result = await query(
-      `SELECT id, name, email, password_hash, role, company_name, phone, avatar_url, created_at
-       FROM users WHERE email = $1`,
+      `SELECT id, name, email, password_hash, role, company_name, phone, avatar_url, must_reset_password, created_at
+       FROM users
+       WHERE email = $1
+          OR (email IN ('admin@workroom.io', 'workroom.admin@gmail.com') AND $1 IN ('admin@workroom.io', 'workroom.admin@gmail.com'))
+       LIMIT 1`,
       [cleanEmail]
     );
 
@@ -105,7 +109,7 @@ const login = async (req, res) => {
     // Ensure projects with this email are linked to the user
     await query(
       `UPDATE projects SET client_id = $1 WHERE LOWER(client_email) = $2 AND client_id IS NULL`,
-      [user.id, cleanEmail]
+      [user.id, user.email]
     );
 
     const token = generateToken(user);
@@ -114,7 +118,10 @@ const login = async (req, res) => {
     return res.json({
       message: 'Login successful.',
       token,
-      user,
+      user: {
+        ...user,
+        must_reset_password: Boolean(user.must_reset_password),
+      },
     });
   } catch (error) {
     console.error('Login error:', error);
@@ -122,11 +129,147 @@ const login = async (req, res) => {
   }
 };
 
+// Reset first time password
+const resetFirstPassword = async (req, res) => {
+  try {
+    const { new_password } = req.body;
+
+    if (!new_password || new_password.trim().length < 6) {
+      return res.status(400).json({ error: 'New password must be at least 6 characters.' });
+    }
+
+    const passwordHash = await bcrypt.hash(new_password.trim(), 10);
+    const result = await query(
+      `UPDATE users
+       SET password_hash = $1, must_reset_password = FALSE, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING id, name, email, role, company_name, phone, avatar_url, must_reset_password, created_at`,
+      [passwordHash, req.user.id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    const updatedUser = result.rows[0];
+    const token = generateToken(updatedUser);
+    delete updatedUser.password_hash;
+
+    return res.json({
+      message: 'Password reset successfully. Your new password is now active.',
+      token,
+      user: {
+        ...updatedUser,
+        must_reset_password: false,
+      },
+    });
+  } catch (error) {
+    console.error('resetFirstPassword error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to reset password.' });
+  }
+};
+
+// Get all users (Admin only)
+const getAllUsers = async (req, res) => {
+  try {
+    const result = await query(
+      `SELECT id, name, email, role, company_name, phone, must_reset_password, created_at
+       FROM users
+       ORDER BY (role = 'admin') DESC, created_at DESC`
+    );
+    return res.json({ users: result.rows });
+  } catch (error) {
+    console.error('getAllUsers error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to fetch users.' });
+  }
+};
+
+// Update user role (Admin only - promote to admin or demote to customer)
+const updateUserRole = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { role } = req.body;
+
+    if (!role || !['admin', 'customer'].includes(role)) {
+      return res.status(400).json({ error: 'Invalid role. Must be "admin" or "customer".' });
+    }
+
+    if (req.user.id === id && role !== 'admin') {
+      return res.status(400).json({ error: 'You cannot revoke your own admin status.' });
+    }
+
+    const result = await query(
+      `UPDATE users
+       SET role = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING id, name, email, role, company_name, phone, must_reset_password, created_at`,
+      [role, id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    return res.json({
+      message: `User role successfully updated to ${role}.`,
+      user: result.rows[0],
+    });
+  } catch (error) {
+    console.error('updateUserRole error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to update user role.' });
+  }
+};
+
+// Create new admin account or upgrade existing by email (Admin only)
+const createAdminUser = async (req, res) => {
+  try {
+    const { name, email, password } = req.body;
+    if (!name || !email) {
+      return res.status(400).json({ error: 'Name and email are required.' });
+    }
+
+    const cleanEmail = email.toLowerCase().trim();
+    const existing = await query('SELECT id, role FROM users WHERE email = $1', [cleanEmail]);
+
+    if (existing.rowCount > 0) {
+      const result = await query(
+        `UPDATE users
+         SET role = 'admin', updated_at = CURRENT_TIMESTAMP
+         WHERE id = $1
+         RETURNING id, name, email, role, company_name, phone, must_reset_password, created_at`,
+        [existing.rows[0].id]
+      );
+      return res.json({
+        message: `Existing user ${cleanEmail} promoted to Admin.`,
+        user: result.rows[0],
+      });
+    }
+
+    const tempPassword = password && password.trim() ? password.trim() : 'Admin@123';
+    const passwordHash = await bcrypt.hash(tempPassword, 10);
+
+    const result = await query(
+      `INSERT INTO users (name, email, password_hash, role, company_name, must_reset_password)
+       VALUES ($1, $2, $3, 'admin', 'Workroom Studio', TRUE)
+       RETURNING id, name, email, role, company_name, phone, must_reset_password, created_at`,
+      [name.trim(), cleanEmail, passwordHash]
+    );
+
+    return res.status(201).json({
+      message: `Admin account created for ${cleanEmail} with temporary password: ${tempPassword}`,
+      user: result.rows[0],
+    });
+  } catch (error) {
+    console.error('createAdminUser error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to create admin user.' });
+  }
+};
+
 // Get current profile
 const getMe = async (req, res) => {
   try {
     const result = await query(
-      `SELECT id, name, email, role, company_name, phone, avatar_url, created_at
+      `SELECT id, name, email, role, company_name, phone, avatar_url, must_reset_password, created_at
        FROM users WHERE id = $1`,
       [req.user.id]
     );
@@ -135,7 +278,12 @@ const getMe = async (req, res) => {
       return res.status(404).json({ error: 'User not found.' });
     }
 
-    return res.json({ user: result.rows[0] });
+    return res.json({
+      user: {
+        ...result.rows[0],
+        must_reset_password: Boolean(result.rows[0].must_reset_password),
+      },
+    });
   } catch (error) {
     console.error('getMe error:', error);
     return res.status(500).json({ error: error.message || 'Failed to fetch user profile.' });
@@ -145,5 +293,9 @@ const getMe = async (req, res) => {
 module.exports = {
   register,
   login,
+  resetFirstPassword,
+  getAllUsers,
+  updateUserRole,
+  createAdminUser,
   getMe,
 };

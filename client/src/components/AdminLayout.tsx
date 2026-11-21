@@ -4,8 +4,10 @@ import { useAuth } from '../context/AuthContext';
 import { projectApi } from '../services/api';
 import type { Project } from '../types';
 import { CreateProjectModal } from './CreateProjectModal';
+import { AdminUsersModal } from './AdminUsersModal';
+import { FirstTimePasswordModal } from './FirstTimePasswordModal';
 import {
-  FolderKanban, Plus, LogOut, ChevronRight, Menu, X, Globe, LayoutGrid,
+  FolderKanban, Plus, LogOut, ChevronRight, Menu, X, Globe, LayoutGrid, Users,
 } from 'lucide-react';
 
 export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -14,6 +16,7 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
   const navigate = useNavigate();
   const [projects, setProjects] = useState<Project[]>([]);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+  const [isUsersModalOpen, setIsUsersModalOpen] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -56,6 +59,14 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
           <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className={navItem(location.pathname === '/admin')}>
             <LayoutGrid size={17} strokeWidth={1.8} /><span className="flex-1">All projects</span><span className={`rounded-md px-2 py-0.5 text-[11px] ${location.pathname === '/admin' ? 'bg-white text-violet-700' : 'bg-slate-100 text-slate-500'}`}>{projects.length}</span>
           </Link>
+          <button
+            type="button"
+            onClick={() => { setIsUsersModalOpen(true); setMobileMenuOpen(false); }}
+            className={navItem(false)}
+          >
+            <Users size={17} strokeWidth={1.8} />
+            <span className="flex-1 text-left">Team & Admins</span>
+          </button>
         </div>
 
         <div className="mt-8 min-h-0 flex-1 px-4">
@@ -82,6 +93,8 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
       <main className="min-w-0 flex-1">{children}</main>
 
       <CreateProjectModal isOpen={isCreateModalOpen} onClose={() => setIsCreateModalOpen(false)} onCreated={(project) => { setProjects((current) => [project, ...current]); navigate(`/admin/projects/${project.id}`); }} />
+      <AdminUsersModal isOpen={isUsersModalOpen} onClose={() => setIsUsersModalOpen(false)} />
+      <FirstTimePasswordModal />
     </div>
   );
 };
