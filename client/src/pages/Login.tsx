@@ -2,14 +2,12 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
-import { Shield, User, ArrowRight, Lock, Mail, AlertCircle } from 'lucide-react';
+import { ArrowRight, Lock, Mail, AlertCircle } from 'lucide-react';
 
 export const Login: React.FC = () => {
   const [searchParams] = useSearchParams();
   const redirectUrl = searchParams.get('redirect') || '';
-  const initialRole = searchParams.get('role') === 'admin' ? 'admin' : 'customer';
 
-  const [roleTab, setRoleTab] = useState<'customer' | 'admin'>(initialRole);
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
@@ -32,7 +30,6 @@ export const Login: React.FC = () => {
       const res = await authApi.login({
         email: email.trim(),
         password,
-        expected_role: roleTab,
       });
 
       login(res.token, res.user);
@@ -64,47 +61,12 @@ export const Login: React.FC = () => {
             Welcome to Workroom
           </h1>
           <p className="text-xs text-zinc-600 mt-1">
-            Studio workspace hub for project sprints, milestone tracking, and deliverables.
+            Sign in to access your projects, development builds, and deliverables.
           </p>
         </div>
 
         {/* Card */}
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-sm">
-          {/* Role Switcher */}
-          <div className="grid grid-cols-2 p-1 rounded-xl bg-zinc-100 border border-zinc-200 mb-6">
-            <button
-              type="button"
-              onClick={() => {
-                setRoleTab('customer');
-                setError(null);
-              }}
-              className={`py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
-                roleTab === 'customer'
-                  ? 'bg-white text-zinc-900 shadow-sm'
-                  : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" />
-              <span>Customer Portal</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setRoleTab('admin');
-                setError(null);
-              }}
-              className={`py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
-                roleTab === 'admin'
-                  ? 'bg-white text-zinc-900 shadow-sm'
-                  : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5 text-sky-600" />
-              <span>Admin Access</span>
-            </button>
-          </div>
-
           {error && (
             <div className="mb-5 p-3 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-xs flex items-center space-x-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
@@ -122,7 +84,8 @@ export const Login: React.FC = () => {
                 <input
                   type="email"
                   required
-                  placeholder={roleTab === 'admin' ? 'admin@workroom.io' : 'client@company.com'}
+                  autoFocus
+                  placeholder="name@company.com"
                   value={email}
                   onChange={(e) => setEmail(e.target.value)}
                   className="w-full pl-9 pr-3.5 py-2 rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 text-xs focus:border-zinc-900 focus:outline-none shadow-sm"
@@ -152,17 +115,16 @@ export const Login: React.FC = () => {
               disabled={loading}
               className="w-full mt-2 py-2.5 px-4 rounded-xl bg-zinc-900 text-white font-semibold text-xs hover:bg-zinc-800 transition-all shadow-sm flex items-center justify-center space-x-2 disabled:opacity-50"
             >
-              <span>{loading ? 'Authenticating...' : `Sign in as ${roleTab === 'admin' ? 'Admin' : 'Customer'}`}</span>
+              <span>{loading ? 'Signing in...' : 'Sign In'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </form>
 
           {/* Seed hint for quick access */}
-          {roleTab === 'admin' && (
-            <div className="mt-4 p-2.5 rounded-lg border border-zinc-200 bg-zinc-50 text-[11px] text-zinc-600 font-mono">
-              <span className="font-semibold text-zinc-800">Default Admin:</span> admin@workroom.io / Admin@123
-            </div>
-          )}
+          <div className="mt-4 p-2.5 rounded-lg border border-zinc-200 bg-zinc-50 text-[11px] text-zinc-600 font-mono flex items-center justify-between">
+            <span className="font-semibold text-zinc-800">Admin Login:</span>
+            <span>admin@workroom.io / Admin@123</span>
+          </div>
 
           <div className="mt-6 pt-5 border-t border-zinc-100 text-center">
             <p className="text-xs text-zinc-600">

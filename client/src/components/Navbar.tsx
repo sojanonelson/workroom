@@ -40,7 +40,7 @@ export const Navbar: React.FC = () => {
           {/* Navigation Links */}
           {isAuthenticated && (
             <nav className="hidden md:flex items-center space-x-1 pl-4 border-l border-zinc-200">
-              {role === 'admin' && (
+              {role === 'admin' ? (
                 <Link
                   to="/admin"
                   className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
@@ -54,21 +54,21 @@ export const Navbar: React.FC = () => {
                     <span>Admin Panel</span>
                   </span>
                 </Link>
+              ) : (
+                <Link
+                  to="/portal"
+                  className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                    location.pathname.startsWith('/portal')
+                      ? 'bg-zinc-100 text-zinc-900 font-semibold'
+                      : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
+                  }`}
+                >
+                  <span className="flex items-center space-x-1.5">
+                    <FolderKanban className="w-3.5 h-3.5 text-zinc-500" />
+                    <span>My Projects</span>
+                  </span>
+                </Link>
               )}
-
-              <Link
-                to="/portal"
-                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                  location.pathname.startsWith('/portal')
-                    ? 'bg-zinc-100 text-zinc-900 font-semibold'
-                    : 'text-zinc-600 hover:text-zinc-900 hover:bg-zinc-50'
-                }`}
-              >
-                <span className="flex items-center space-x-1.5">
-                  <FolderKanban className="w-3.5 h-3.5 text-zinc-500" />
-                  <span>My Projects</span>
-                </span>
-              </Link>
             </nav>
           )}
         </div>

@@ -102,13 +102,6 @@ const login = async (req, res) => {
       return res.status(401).json({ error: 'Invalid email or password.' });
     }
 
-    // Role check if frontend specifies expected role (admin or customer)
-    if (expected_role && user.role !== expected_role) {
-      return res.status(403).json({
-        error: `Access denied. This portal requires ${expected_role} access, but your account is registered as ${user.role}.`,
-      });
-    }
-
     // Ensure projects with this email are linked to the user
     await query(
       `UPDATE projects SET client_id = $1 WHERE LOWER(client_email) = $2 AND client_id IS NULL`,

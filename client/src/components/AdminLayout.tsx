@@ -56,7 +56,6 @@ export const AdminLayout: React.FC<{ children: React.ReactNode }> = ({ children 
           <Link to="/admin" onClick={() => setMobileMenuOpen(false)} className={navItem(location.pathname === '/admin')}>
             <LayoutGrid size={17} strokeWidth={1.8} /><span className="flex-1">All projects</span><span className={`rounded-md px-2 py-0.5 text-[11px] ${location.pathname === '/admin' ? 'bg-white text-violet-700' : 'bg-slate-100 text-slate-500'}`}>{projects.length}</span>
           </Link>
-          <Link to="/portal" onClick={() => setMobileMenuOpen(false)} className={navItem(false)}><Globe size={17} strokeWidth={1.8} /><span>Client portal</span></Link>
         </div>
 
         <div className="mt-8 min-h-0 flex-1 px-4">
