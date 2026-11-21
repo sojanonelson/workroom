@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '../context/AuthContext';
 import { authApi } from '../services/api';
-import { User, Shield, Building, Phone, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
+import { User, Building, Phone, Mail, Lock, ArrowRight, AlertCircle } from 'lucide-react';
 
 export const Register: React.FC = () => {
   const [searchParams] = useSearchParams();
@@ -10,13 +10,11 @@ export const Register: React.FC = () => {
   const inviteToken = searchParams.get('invite_token') || '';
   const initialEmail = searchParams.get('email') || '';
 
-  const [role, setRole] = useState<'customer' | 'admin'>('customer');
   const [name, setName] = useState('');
   const [email, setEmail] = useState(initialEmail);
   const [password, setPassword] = useState('');
   const [companyName, setCompanyName] = useState('');
   const [phone, setPhone] = useState('');
-  const [adminSecret, setAdminSecret] = useState('');
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -38,10 +36,8 @@ export const Register: React.FC = () => {
         name: name.trim(),
         email: email.trim(),
         password,
-        role,
         company_name: companyName.trim() || undefined,
         phone: phone.trim() || undefined,
-        admin_secret: role === 'admin' ? adminSecret : undefined,
         invite_token: inviteToken || undefined,
       });
 
@@ -78,41 +74,6 @@ export const Register: React.FC = () => {
         </div>
 
         <div className="rounded-2xl border border-zinc-200 bg-white p-6 sm:p-8 shadow-sm">
-          {/* Role selector */}
-          <div className="grid grid-cols-2 p-1 rounded-xl bg-zinc-100 border border-zinc-200 mb-6">
-            <button
-              type="button"
-              onClick={() => {
-                setRole('customer');
-                setError(null);
-              }}
-              className={`py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
-                role === 'customer'
-                  ? 'bg-white text-zinc-900 shadow-sm'
-                  : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              <User className="w-3.5 h-3.5" />
-              <span>Customer Account</span>
-            </button>
-
-            <button
-              type="button"
-              onClick={() => {
-                setRole('admin');
-                setError(null);
-              }}
-              className={`py-2 text-xs font-semibold rounded-lg transition-all flex items-center justify-center space-x-1.5 ${
-                role === 'admin'
-                  ? 'bg-white text-zinc-900 shadow-sm'
-                  : 'text-zinc-600 hover:text-zinc-900'
-              }`}
-            >
-              <Shield className="w-3.5 h-3.5 text-sky-600" />
-              <span>Admin Account</span>
-            </button>
-          </div>
-
           {error && (
             <div className="mb-5 p-3 rounded-lg border border-rose-200 bg-rose-50 text-rose-700 text-xs flex items-center space-x-2">
               <AlertCircle className="w-4 h-4 flex-shrink-0 text-rose-600" />
@@ -128,6 +89,7 @@ export const Register: React.FC = () => {
                 <input
                   type="text"
                   required
+                  autoFocus
                   placeholder="e.g. Eleanor Vance"
                   value={name}
                   onChange={(e) => setName(e.target.value)}
@@ -187,7 +149,7 @@ export const Register: React.FC = () => {
                   <Phone className="w-4 h-4 text-zinc-400 absolute left-3 top-2.5" />
                   <input
                     type="tel"
-                    placeholder="+1 (555) 000"
+                    placeholder="+91 98765 43210"
                     value={phone}
                     onChange={(e) => setPhone(e.target.value)}
                     className="w-full pl-9 pr-3 py-2 rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 text-xs focus:border-zinc-900 focus:outline-none shadow-sm"
@@ -196,28 +158,12 @@ export const Register: React.FC = () => {
               </div>
             </div>
 
-            {role === 'admin' && (
-              <div>
-                <label className="block text-xs font-semibold text-sky-700 mb-1.5">
-                  Admin Passcode Secret *
-                </label>
-                <input
-                  type="password"
-                  required
-                  placeholder="Enter secret (default: workroom_admin_2026)"
-                  value={adminSecret}
-                  onChange={(e) => setAdminSecret(e.target.value)}
-                  className="w-full px-3.5 py-2 rounded-xl border border-zinc-300 bg-white text-zinc-900 placeholder-zinc-400 text-xs font-mono focus:border-zinc-900 focus:outline-none shadow-sm"
-                />
-              </div>
-            )}
-
             <button
               type="submit"
               disabled={loading}
               className="w-full mt-3 py-2.5 px-4 rounded-xl bg-zinc-900 text-white font-semibold text-xs hover:bg-zinc-800 transition-all shadow-sm flex items-center justify-center space-x-2 disabled:opacity-50"
             >
-              <span>{loading ? 'Creating Account...' : 'Register & Enter Workspace'}</span>
+              <span>{loading ? 'Creating Account...' : 'Create Account'}</span>
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           </form>
