@@ -6,6 +6,7 @@ const {
   resetFirstPassword,
   getAllUsers,
   updateUserRole,
+  updateUserName,
   createAdminUser,
   getMe,
 } = require('../controllers/authController');
@@ -19,6 +20,7 @@ router.get('/me', authenticateToken, getMe);
 // Admin-only user management routes
 router.get('/users', authenticateToken, requireAdmin, getAllUsers);
 router.patch('/users/:id/role', authenticateToken, requireAdmin, updateUserRole);
+router.patch('/users/:id/name', authenticateToken, requireAdmin, updateUserName);
 router.post('/users/create-admin', authenticateToken, requireAdmin, createAdminUser);
 
 module.exports = router;

@@ -69,6 +69,10 @@ export const authApi = {
     const res = await apiClient.patch<{ message: string; user: User }>(`/auth/users/${id}/role`, { role });
     return res.data;
   },
+  updateUserName: async (id: string, name: string) => {
+    const res = await apiClient.patch<{ message: string; user: User }>(`/auth/users/${id}/name`, { name });
+    return res.data;
+  },
   createAdmin: async (data: { name: string; email: string; password?: string }) => {
     const res = await apiClient.post<{ message: string; user: User }>('/auth/users/create-admin', data);
     return res.data;

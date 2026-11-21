@@ -13,6 +13,8 @@ import {
   RefreshCw,
   Mail,
   Lock,
+  Pencil,
+  Check,
 } from 'lucide-react';
 import { authApi } from '../services/api';
 import { useAuth } from '../context/AuthContext';
@@ -24,7 +26,7 @@ interface AdminUsersModalProps {
 }
 
 export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({ isOpen, onClose }) => {
-  const { user: currentUser } = useAuth();
+  const { user: currentUser, refreshUser } = useAuth();
 
   const [users, setUsers] = useState<User[]>([]);
   const [loading, setLoading] = useState(true);
@@ -38,6 +40,11 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({ isOpen, onClos
   const [newAdminEmail, setNewAdminEmail] = useState('');
   const [newAdminPassword, setNewAdminPassword] = useState('Admin@123');
   const [submittingNewAdmin, setSubmittingNewAdmin] = useState(false);
+
+  // Name editing state
+  const [editingUserId, setEditingUserId] = useState<string | null>(null);
+  const [editingName, setEditingName] = useState<string>('');
+  const [savingName, setSavingName] = useState<boolean>(false);
 
   const fetchUsers = async () => {
     try {
@@ -116,6 +123,35 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({ isOpen, onClos
       setError(err.response?.data?.error || 'Failed to create admin.');
     } finally {
       setSubmittingNewAdmin(false);
+    }
+  };
+
+  const handleSaveName = async (userId: string) => {
+    if (!editingName.trim()) {
+      setError('Name cannot be empty.');
+      return;
+    }
+
+    try {
+      setSavingName(true);
+      setError(null);
+      const res = await authApi.updateUserName(userId, editingName.trim());
+      setSuccessMsg(`Name updated to "${res.user.name}".`);
+      setTimeout(() => setSuccessMsg(null), 3000);
+      setUsers((prev) =>
+        prev.map((u) => (u.id === userId ? { ...u, name: res.user.name } : u))
+      );
+      setEditingUserId(null);
+
+      // If updating current logged in admin, update context
+      if (userId === currentUser?.id) {
+        await refreshUser();
+      }
+    } catch (err: any) {
+      console.error(err);
+      setError(err.response?.data?.error || 'Failed to update name.');
+    } finally {
+      setSavingName(false);
     }
   };
 
@@ -297,26 +333,73 @@ export const AdminUsersModal: React.FC<AdminUsersModalProps> = ({ isOpen, onClos
                     </div>
 
                     <div className="min-w-0">
-                      <div className="flex items-center space-x-2">
-                        <span className="text-xs font-bold text-zinc-900 truncate">
-                          {u.name || 'Unnamed User'}
-                        </span>
-                        {isSelf && (
-                          <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-600">
-                            You
-                          </span>
-                        )}
-                        <span
-                          className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full inline-flex items-center space-x-1 ${
-                            isAdmin
-                              ? 'bg-violet-50 text-violet-700 border border-violet-200'
-                              : 'bg-zinc-100 text-zinc-600 border border-zinc-200'
-                          }`}
+                      {editingUserId === u.id ? (
+                        <form
+                          onSubmit={(e) => {
+                            e.preventDefault();
+                            handleSaveName(u.id);
+                          }}
+                          className="flex items-center space-x-1.5 py-0.5"
                         >
-                          {isAdmin ? <Shield className="w-2.5 h-2.5" /> : <UserIcon className="w-2.5 h-2.5" />}
-                          <span>{isAdmin ? 'Admin' : 'Customer'}</span>
-                        </span>
-                      </div>
+                          <input
+                            type="text"
+                            required
+                            autoFocus
+                            value={editingName}
+                            onChange={(e) => setEditingName(e.target.value)}
+                            placeholder="Enter name"
+                            className="px-2 py-0.5 text-xs rounded-lg border border-zinc-300 bg-white text-zinc-900 focus:border-zinc-900 focus:outline-none w-36 sm:w-48 shadow-2xs"
+                          />
+                          <button
+                            type="submit"
+                            disabled={savingName}
+                            title="Save name"
+                            className="p-1 rounded-md bg-zinc-900 text-white hover:bg-zinc-800 disabled:opacity-50 transition-colors shadow-2xs"
+                          >
+                            <Check className="w-3.5 h-3.5" />
+                          </button>
+                          <button
+                            type="button"
+                            onClick={() => setEditingUserId(null)}
+                            title="Cancel"
+                            className="p-1 rounded-md border border-zinc-200 text-zinc-500 hover:bg-zinc-100 transition-colors"
+                          >
+                            <X className="w-3.5 h-3.5" />
+                          </button>
+                        </form>
+                      ) : (
+                        <div className="flex items-center space-x-2">
+                          <span className="text-xs font-bold text-zinc-900 truncate">
+                            {u.name || 'Unnamed User'}
+                          </span>
+                          <button
+                            type="button"
+                            onClick={() => {
+                              setEditingUserId(u.id);
+                              setEditingName(u.name || '');
+                            }}
+                            title="Change user name"
+                            className="p-1 text-zinc-400 hover:text-zinc-800 hover:bg-zinc-100 rounded-md transition-colors"
+                          >
+                            <Pencil className="w-3 h-3" />
+                          </button>
+                          {isSelf && (
+                            <span className="text-[10px] font-mono px-1.5 py-0.2 rounded bg-zinc-100 text-zinc-600">
+                              You
+                            </span>
+                          )}
+                          <span
+                            className={`text-[10px] font-mono font-semibold px-2 py-0.5 rounded-full inline-flex items-center space-x-1 ${
+                              isAdmin
+                                ? 'bg-violet-50 text-violet-700 border border-violet-200'
+                                : 'bg-zinc-100 text-zinc-600 border border-zinc-200'
+                            }`}
+                          >
+                            {isAdmin ? <Shield className="w-2.5 h-2.5" /> : <UserIcon className="w-2.5 h-2.5" />}
+                            <span>{isAdmin ? 'Admin' : 'Customer'}</span>
+                          </span>
+                        </div>
+                      )}
                       <p className="text-[11px] font-mono text-zinc-500 truncate mt-0.5">
                         {u.email}
                       </p>

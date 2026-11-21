@@ -220,6 +220,38 @@ const updateUserRole = async (req, res) => {
   }
 };
 
+// Update user name (Admin only)
+const updateUserName = async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { name } = req.body;
+
+    if (!name || !name.trim()) {
+      return res.status(400).json({ error: 'Name cannot be empty.' });
+    }
+
+    const result = await query(
+      `UPDATE users
+       SET name = $1, updated_at = CURRENT_TIMESTAMP
+       WHERE id = $2
+       RETURNING id, name, email, role, company_name, phone, must_reset_password, created_at`,
+      [name.trim(), id]
+    );
+
+    if (result.rowCount === 0) {
+      return res.status(404).json({ error: 'User not found.' });
+    }
+
+    return res.json({
+      message: 'Name updated successfully.',
+      user: result.rows[0],
+    });
+  } catch (error) {
+    console.error('updateUserName error:', error);
+    return res.status(500).json({ error: error.message || 'Failed to update user name.' });
+  }
+};
+
 // Create new admin account or upgrade existing by email (Admin only)
 const createAdminUser = async (req, res) => {
   try {
@@ -296,6 +328,7 @@ module.exports = {
   resetFirstPassword,
   getAllUsers,
   updateUserRole,
+  updateUserName,
   createAdminUser,
   getMe,
 };
