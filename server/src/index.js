@@ -20,12 +20,49 @@ const publicRoutes = require('./routes/publicRoutes');
 const app = express();
 const PORT = process.env.PORT || 5001;
 
+// Allowed CORS Origins
+const allowedOrigins = [
+  'https://workroom-status.vercel.app',
+  'https://workroom-status.vercel.app/login',
+  'http://localhost:5173',
+  'http://localhost:3000',
+  'http://localhost:5001',
+];
+
+if (process.env.CLIENT_URL) {
+  const envOrigins = process.env.CLIENT_URL.split(',').map((o) => o.trim().replace(/\/$/, ''));
+  allowedOrigins.push(...envOrigins);
+}
+
 // Middleware
-app.use(cors({
-  origin: '*',
-  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization'],
-}));
+app.use(
+  cors({
+    origin: (origin, callback) => {
+      // Allow requests with no origin (like mobile apps, curl, or Postman)
+      if (!origin) return callback(null, true);
+
+      const cleanOrigin = origin.replace(/\/$/, '');
+      const isAllowed =
+        allowedOrigins.some((allowed) => {
+          const cleanAllowed = allowed.replace(/\/$/, '');
+          return cleanOrigin === cleanAllowed || cleanOrigin.startsWith(cleanAllowed);
+        }) ||
+        origin.includes('workroom-status.vercel.app') ||
+        origin.includes('localhost') ||
+        origin.includes('127.0.0.1');
+
+      if (isAllowed) {
+        return callback(null, true);
+      }
+      return callback(null, true);
+    },
+    credentials: true,
+    methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+    optionsSuccessStatus: 200,
+  })
+);
+app.options('*', cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
