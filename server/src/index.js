@@ -73,6 +73,17 @@ if (!fs.existsSync(uploadsDir)) {
 }
 app.use('/uploads', express.static(uploadsDir));
 
+// Root Endpoint - Server Running Status
+app.get('/', (req, res) => {
+  res.status(200).json({
+    status: 'ok',
+    message: 'Backend server is running OK',
+    service: 'Workroom API Server',
+    uptime: `${Math.floor(process.uptime())}s`,
+    timestamp: new Date().toISOString(),
+  });
+});
+
 // System Health & Diagnostics endpoint
 app.get('/api/health', (req, res) => {
   const isNeon = process.env.DATABASE_URL?.includes('neon.tech');
